@@ -105,14 +105,16 @@
                     body: JSON.stringify(formData)
                 });
 
-                if (response.ok) {
+                // Verifica se a resposta do servidor possui corpo e é JSON válido
+                const contentType = response.headers.get('Content-Type');
+                if (response.ok && contentType && contentType.includes('application/json')) {
                     const data = await response.json();
-                    resultadoDiv.textContent = `Valor estimado da aposentadoria: R$ ${data.valorEstimado}`;
+                    resultadoDiv.textContent = `Valor estimado da aposentadoria: R$ ${data.valorEstimado.toFixed(2)}`;
                     resultadoDiv.classList.remove('erro');
                     resultadoDiv.style.display = 'block';
                 } else {
                     const errorData = await response.json();
-                    resultadoDiv.textContent = `Erro: ${errorData.error}`;
+                    resultadoDiv.textContent = `Erro: ${errorData.error || 'Resposta inesperada do servidor.'}`;
                     resultadoDiv.classList.add('erro');
                     resultadoDiv.style.display = 'block';
                 }
