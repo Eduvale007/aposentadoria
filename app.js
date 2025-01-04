@@ -48,11 +48,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Rota para processar os dados enviados pelo formulário
+// Caminho para processar os dados enviados pelo formulário
 app.post('/enviar', (req, res) => {
     const { name, dataContratacao, tempoContribuicao, salario } = req.body;
 
-    // Validação básica dos dados
+    // Validação  dos dados
     if (!name || !dataContratacao || !tempoContribuicao || !salario) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
     }
