@@ -6,20 +6,19 @@ const path = require('path');
 
 const app = express();
 
-// Configurar middlewares
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public'))); // Servir arquivos estáticos
+app.use(express.static(path.join(__dirname, 'public'))); 
 
-// Conectar ao MongoDB
+
 mongoose.connect(process.env.DB_URI)
     .then(() => console.log('Conectado ao banco de dados MongoDB com sucesso.'))
     .catch((err) => {
         console.error('Erro ao conectar ao MongoDB:', err.message);
-        process.exit(1); // Fecha o servidor se o banco de dados não estiver disponível
+        process.exit(1); 
     });
 
-// Criar Schemas do Mongoose
 const funcionarioSchema = new mongoose.Schema({
     Nome: String,
     Dt_contratacao: Date,
@@ -38,29 +37,29 @@ const aposentadoriaSchema = new mongoose.Schema({
     Dt_calculo: { type: Date, default: Date.now },
 });
 
-// Criar modelos
+
 const Funcionario = mongoose.model('Funcionario', funcionarioSchema);
 const Salario = mongoose.model('Salario', salarioSchema);
 const Aposentadoria = mongoose.model('Aposentadoria', aposentadoriaSchema);
 
-// Rota inicial para exibir o formulário
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Caminho para processar os dados enviados pelo formulário
+
 app.post('/enviar', (req, res) => {
     const { name, dataContratacao, tempoContribuicao, salario } = req.body;
 
-    // Validação  dos dados
+
     if (!name || !dataContratacao || !tempoContribuicao || !salario) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
     }
 
-    const fator = 0.08; // cálculo da aposentadoria
+    const fator = 0.08; 
     const valorEstimado = (salario * fator) * tempoContribuicao;
 
-    // Criar o novo funcionário
+
     const novoFuncionario = new Funcionario({
         Nome: name,
         Dt_contratacao: new Date(dataContratacao),
@@ -69,7 +68,7 @@ app.post('/enviar', (req, res) => {
 
     novoFuncionario.save()
         .then((funcionario) => {
-            // Inserir o salário do funcionário
+      
             const novoSalario = new Salario({
                 funcionario_id: funcionario._id,
                 Valor_Bruto: salario,
@@ -78,7 +77,7 @@ app.post('/enviar', (req, res) => {
             return novoSalario.save();
         })
         .then((salario) => {
-            // Inserir os dados de aposentadoria
+   
             const novaAposentadoria = new Aposentadoria({
                 funcionario_id: salario.funcionario_id,
                 Valor_estimado: valorEstimado,
@@ -95,8 +94,8 @@ app.post('/enviar', (req, res) => {
         });
 });
 
-// Inicializa o servidor
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`); // Corrigido com as aspas
+    console.log(`Servidor rodando na porta ${PORT}`); 
 });
